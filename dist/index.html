@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweetBox Chatbot</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .chat-bubble-left { border-radius: 18px 18px 18px 4px; }
+    .chat-bubble-right { border-radius: 18px 18px 4px 18px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const { useState, useEffect } = React;
+    
+    const products = [
+      {
+        id: 1,
+        name: "Premium Chocolate Box",
+        description: "Handcrafted premium chocolates made with finest Belgian cocoa",
+        basePrice: "599",
+        imageUrl: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop",
+        sizes: { small: { pieces: 12, price: 399 }, medium: { pieces: 24, price: 599 }, large: { pieces: 36, price: 899 } },
+        laminations: { matte: { price: 30 }, glossy: { price: 50 } }
+      },
+      {
+        id: 2,
+        name: "Traditional Mithai Box",
+        description: "Authentic Indian sweets including laddu, barfi, and gulab jamun",
+        basePrice: "399",
+        imageUrl: "https://images.unsplash.com/photo-1606471191009-d5d2593f9bb1?w=300&h=200&fit=crop",
+        sizes: { small: { pieces: 8, price: 299 }, medium: { pieces: 16, price: 399 }, large: { pieces: 24, price: 599 } },
+        laminations: { matte: { price: 25 }, glossy: { price: 40 } }
+      },
+      {
+        id: 3,
+        name: "Mixed Candy Collection",
+        description: "Colorful assorted candies and gummies in festive arrangement",
+        basePrice: "249",
+        imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=200&fit=crop",
+        sizes: { small: { pieces: 20, price: 199 }, medium: { pieces: 40, price: 249 }, large: { pieces: 60, price: 349 } },
+        laminations: { matte: { price: 20 }, glossy: { price: 35 } }
+      },
+      {
+        id: 4,
+        name: "Premium Dry Fruits Box",
+        description: "Elegant selection of premium dry fruits and nuts",
+        basePrice: "799",
+        imageUrl: "https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?w=300&h=200&fit=crop",
+        sizes: { small: { pieces: 250, price: 599 }, medium: { pieces: 500, price: 799 }, large: { pieces: 1000, price: 1299 } },
+        laminations: { matte: { price: 40 }, glossy: { price: 60 } }
+      }
+    ];
+    
+    const business = {
+      name: "SweetBox Premium",
+      phone: "+91 98765 12345",
+      address: "MG Road, Bangalore - 560001",
+      email: "orders@sweetboxpremium.com",
+      deliveryCharges: 50
+    };
+    
+    function ChatApp() {
+      const [messages, setMessages] = useState([
+        { 
+          id: 1, 
+          type: 'bot', 
+          content: 'Welcome to SweetBox! 🍭 I\'m here to help you create the perfect sweet boxes for any occasion. Let\'s get started!', 
+          timestamp: new Date().toISOString() 
+        },
+        { 
+          id: 2, 
+          type: 'bot', 
+          content: 'Could you please share your mobile number so I can provide personalized service? 📱', 
+          timestamp: new Date().toISOString() 
+        }
+      ]);
+      const [input, setInput] = useState('');
+      const [selectedProduct, setSelectedProduct] = useState(null);
+      const [customization, setCustomization] = useState({
+        size: 'medium',
+        lamination: 'glossy',
+        quantity: 1
+      });
+      const [step, setStep] = useState('welcome');
+      
+      const sendMessage = () => {
+        if (!input.trim()) return;
+        
+        const userMessage = {
+          id: Date.now(),
+          type: 'user',
+          content: input,
+          timestamp: new Date().toISOString()
+        };
+        
+        setMessages(prev => [...prev, userMessage]);
+        
+        // Simple bot responses based on input
+        setTimeout(() => {
+          let botResponse = '';
+          
+          if (input.match(/\d{10}/)) {
+            botResponse = 'Thank you! Let me show you our popular sweet box varieties:';
+            setStep('products');
+          } else if (input.toLowerCase().includes('product') || input.toLowerCase().includes('catalog')) {
+            botResponse = 'Here are our featured sweet boxes:';
+            setStep('products');
+          } else if (input.toLowerCase().includes('help')) {
+            botResponse = 'I can help you browse our products, customize orders, and answer any questions. What would you like to do?';
+          } else {
+            botResponse = 'I understand! Let me help you with our sweet box selection. Would you like to see our products?';
+          }
+          
+          const botMessage = {
+            id: Date.now() + 1,
+            type: 'bot',
+            content: botResponse,
+            timestamp: new Date().toISOString(),
+            showProducts: step === 'products' || input.toLowerCase().includes('product')
+          };
+          
+          setMessages(prev => [...prev, botMessage]);
+        }, 1000);
+        
+        setInput('');
+      };
+      
+      const selectProduct = (product) => {
+        setSelectedProduct(product);
+        const message = {
+          id: Date.now(),
+          type: 'bot',
+          content: `Excellent choice! Let's customize your ${product.name}:`,
+          timestamp: new Date().toISOString(),
+          showCustomization: true,
+          product: product
+        };
+        setMessages(prev => [...prev, message]);
+      };
+      
+      const calculatePrice = () => {
+        if (!selectedProduct) return 0;
+        const sizePrice = selectedProduct.sizes[customization.size].price;
+        const laminationPrice = selectedProduct.laminations[customization.lamination].price;
+        const subtotal = (sizePrice + laminationPrice) * customization.quantity;
+        return subtotal + business.deliveryCharges;
+      };
+      
+      const ProductGallery = () => (
+        React.createElement('div', { className: 'mt-3' },
+          React.createElement('div', { className: 'grid grid-cols-2 gap-2 mb-3' },
+            products.map(product => 
+              React.createElement('div', {
+                key: product.id,
+                className: 'bg-white rounded-lg p-2 border cursor-pointer hover:shadow-md transition-all',
+                onClick: () => selectProduct(product)
+              },
+                React.createElement('img', {
+                  src: product.imageUrl,
+                  alt: product.name,
+                  className: 'w-full h-20 object-cover rounded-md mb-1'
+                }),
+                React.createElement('p', {
+                  className: 'text-xs font-medium text-gray-800 mb-1'
+                }, product.name),
+                React.createElement('p', {
+                  className: 'text-xs text-pink-500 font-semibold'
+                }, `₹${product.basePrice}`)
+              )
+            )
+          )
+        )
+      );
+      
+      const CustomizationWizard = ({ product }) => (
+        React.createElement('div', { className: 'bg-white rounded-lg p-3 mt-3 border space-y-3' },
+          React.createElement('div', {},
+            React.createElement('label', { className: 'text-xs font-medium text-gray-600 block mb-1' }, 'Box Size:'),
+            React.createElement('div', { className: 'flex space-x-1' },
+              Object.entries(product.sizes).map(([sizeKey, sizeData]) =>
+                React.createElement('button', {
+                  key: sizeKey,
+                  className: `flex-1 text-xs py-1 px-2 rounded ${customization.size === sizeKey ? 'bg-pink-500 text-white' : 'bg-pink-50 text-pink-500 border border-pink-200'}`,
+                  onClick: () => setCustomization(prev => ({ ...prev, size: sizeKey }))
+                }, `${sizeKey.charAt(0).toUpperCase() + sizeKey.slice(1)} (${sizeData.pieces}pc)`)
+              )
+            )
+          ),
+          React.createElement('div', {},
+            React.createElement('label', { className: 'text-xs font-medium text-gray-600 block mb-1' }, 'Lamination:'),
+            React.createElement('div', { className: 'grid grid-cols-2 gap-1' },
+              Object.entries(product.laminations).map(([laminationType, laminationData]) =>
+                React.createElement('div', {
+                  key: laminationType,
+                  className: `border-2 rounded-lg p-2 cursor-pointer ${customization.lamination === laminationType ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`,
+                  onClick: () => setCustomization(prev => ({ ...prev, lamination: laminationType }))
+                },
+                  React.createElement('div', { className: 'w-full h-8 bg-gradient-to-r from-gray-100 to-gray-200 rounded mb-1' }),
+                  React.createElement('p', {
+                    className: `text-xs text-center font-medium ${customization.lamination === laminationType ? 'text-pink-500' : 'text-gray-600'}`
+                  }, `${laminationType.charAt(0).toUpperCase() + laminationType.slice(1)} (+₹${laminationData.price})`)
+                )
+              )
+            )
+          ),
+          React.createElement('div', {},
+            React.createElement('label', { className: 'text-xs font-medium text-gray-600 block mb-1' }, 'Quantity:'),
+            React.createElement('div', { className: 'flex items-center space-x-2' },
+              React.createElement('button', {
+                className: 'w-8 h-8 rounded-full border text-sm',
+                onClick: () => setCustomization(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))
+              }, '-'),
+              React.createElement('span', { className: 'px-3 py-1 bg-gray-100 rounded text-sm font-medium min-w-[3rem] text-center' }, customization.quantity),
+              React.createElement('button', {
+                className: 'w-8 h-8 rounded-full bg-pink-500 text-white text-sm',
+                onClick: () => setCustomization(prev => ({ ...prev, quantity: prev.quantity + 1 }))
+              }, '+')
+            )
+          ),
+          React.createElement('div', { className: 'bg-green-50 rounded-lg p-2' },
+            React.createElement('div', { className: 'flex justify-between items-center font-semibold text-pink-500' },
+              React.createElement('span', {}, 'Total:'),
+              React.createElement('span', {}, `₹${calculatePrice().toLocaleString()}`)
+            )
+          ),
+          React.createElement('button', {
+            className: 'w-full bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded-lg',
+            onClick: () => {
+              const orderMessage = {
+                id: Date.now(),
+                type: 'bot',
+                content: '🎉 Order confirmed! Your order will be delivered tomorrow between 3-6 PM. Thank you for choosing SweetBox!',
+                timestamp: new Date().toISOString()
+              };
+              setMessages(prev => [...prev, orderMessage]);
+            }
+          }, '🛒 Add to Order')
+        )
+      );
+      
+      return React.createElement('div', { className: 'min-h-screen bg-white' },
+        React.createElement('header', { className: 'fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-pink-500 to-orange-500 shadow-lg' },
+          React.createElement('div', { className: 'flex items-center justify-between px-4 py-3' },
+            React.createElement('div', { className: 'flex items-center space-x-3' },
+              React.createElement('div', { className: 'w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md' },
+                React.createElement('span', { className: 'text-pink-500 text-xl' }, '🍭')
+              ),
+              React.createElement('div', {},
+                React.createElement('h1', { className: 'text-white font-semibold text-lg' }, business.name),
+                React.createElement('div', { className: 'flex items-center text-white/80 text-sm' },
+                  React.createElement('div', { className: 'w-2 h-2 bg-green-400 rounded-full mr-2' }),
+                  'Online now'
+                )
+              )
+            ),
+            React.createElement('button', {
+              className: 'text-white/90 hover:text-white p-2',
+              onClick: () => window.open(`tel:${business.phone}`)
+            }, '📞')
+          )
+        ),
+        React.createElement('main', { className: 'pt-20 pb-32' },
+          React.createElement('div', { className: 'max-w-md mx-auto bg-white shadow-2xl min-h-[calc(100vh-128px)]' },
+            React.createElement('div', { className: 'px-4 py-4 space-y-4' },
+              messages.map(message => 
+                React.createElement('div', {
+                  key: message.id,
+                  className: `flex items-start space-x-2 ${message.type === 'user' ? 'justify-end' : ''}`
+                },
+                  message.type === 'bot' && React.createElement('div', {
+                    className: 'w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0'
+                  }, '🤖'),
+                  React.createElement('div', {
+                    className: `max-w-sm p-3 ${message.type === 'user' ? 'bg-pink-500 text-white chat-bubble-right ml-auto' : 'bg-gray-100 text-gray-800 chat-bubble-left'}`
+                  },
+                    React.createElement('p', { className: 'text-sm leading-relaxed' }, message.content),
+                    message.showProducts && React.createElement(ProductGallery),
+                    message.showCustomization && React.createElement(CustomizationWizard, { product: message.product }),
+                    React.createElement('span', {
+                      className: `text-xs mt-2 block ${message.type === 'user' ? 'text-white/80' : 'text-gray-500'}`
+                    }, new Date(message.timestamp).toLocaleTimeString())
+                  ),
+                  message.type === 'user' && React.createElement('div', {
+                    className: 'w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center flex-shrink-0'
+                  }, '👤')
+                )
+              )
+            )
+          )
+        ),
+        React.createElement('footer', { className: 'fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg' },
+          React.createElement('div', { className: 'max-w-md mx-auto px-4 py-3' },
+            React.createElement('div', { className: 'flex items-center space-x-3' },
+              React.createElement('input', {
+                type: 'text',
+                placeholder: 'Type your message...',
+                value: input,
+                onChange: (e) => setInput(e.target.value),
+                onKeyPress: (e) => e.key === 'Enter' && sendMessage(),
+                className: 'flex-1 bg-gray-100 border-0 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-white'
+              }),
+              React.createElement('button', {
+                onClick: sendMessage,
+                disabled: !input.trim(),
+                className: 'w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full text-white shadow-lg disabled:opacity-50'
+              }, '➤')
+            ),
+            React.createElement('div', { className: 'flex space-x-2 mt-3 overflow-x-auto' },
+              ['📚 View Catalog', '📦 My Orders', '✨ Custom Box', '💬 Support'].map((action, index) =>
+                React.createElement('button', {
+                  key: index,
+                  className: 'flex-shrink-0 bg-pink-50 text-pink-500 border border-pink-200 px-3 py-1 rounded-full text-xs font-medium hover:bg-pink-500 hover:text-white',
+                  onClick: () => setInput(action.replace(/[📚📦✨💬]\s*/, ''))
+                }, action)
+              )
+            )
+          )
+        )
+      );
+    }
+    
+    ReactDOM.render(React.createElement(ChatApp), document.getElementById('root'));
+  </script>
+</body>
+</html>
