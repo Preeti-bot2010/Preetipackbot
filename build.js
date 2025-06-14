@@ -1,5 +1,23 @@
 import fs from 'fs';
 import path from 'path';
+const express = require('express');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Serve static files (e.g., index.html, CSS, JS)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Optional: fallback for single-page apps
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
+
 
 // Create a simple build script for static deployment
 const clientSrc = './client/src';
