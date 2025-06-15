@@ -1,16 +1,15 @@
 {
- {
   "name": "preeti-chatbot",
   "version": "1.0.0",
-  "main": "build.js",
+  "description": "SweetBox chatbot app",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
-    "express": "^4.18.2"
-  }
-}
- {
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
@@ -101,5 +100,6 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
-  }
+  },
+  "license": "ISC"
 }
