@@ -4,8 +4,8 @@
   "description": "SweetBox chatbot web app",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "build": "node build.js"
+    "build": "node build.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2"
