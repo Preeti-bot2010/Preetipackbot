@@ -1,26 +1,23 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Serve static files (e.g., index.html, CSS, JS)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Optional: fallback for single-page apps
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-
 // Create a simple build script for static deployment
-const clientSrc = './client/src';
 const clientDist = './dist';
 
 // Ensure dist directory exists
@@ -85,25 +82,25 @@ const indexHtml = `<!DOCTYPE html>
   <script>
     // Simple chat application
     const { useState, useEffect } = React;
-    
+
     function ChatApp() {
       const [messages, setMessages] = useState([
         { id: 1, type: 'bot', content: 'Welcome to SweetBox! I can help you order delicious sweet boxes. Please share your mobile number to get started.', timestamp: new Date().toISOString() }
       ]);
       const [input, setInput] = useState('');
-      
+
       const sendMessage = () => {
         if (!input.trim()) return;
-        
+
         const userMessage = {
           id: messages.length + 1,
           type: 'user',
           content: input,
           timestamp: new Date().toISOString()
         };
-        
+
         setMessages(prev => [...prev, userMessage]);
-        
+
         // Simple bot response
         setTimeout(() => {
           const botMessage = {
@@ -114,23 +111,23 @@ const indexHtml = `<!DOCTYPE html>
           };
           setMessages(prev => [...prev, botMessage]);
         }, 1000);
-        
+
         setInput('');
       };
-      
+
       return React.createElement('div', { className: 'min-h-screen bg-white' },
         React.createElement('header', { className: 'bg-gradient-to-r from-pink-500 to-orange-500 p-4 text-white' },
           React.createElement('h1', { className: 'text-xl font-bold' }, 'SweetBox Premium'),
           React.createElement('p', { className: 'text-sm opacity-90' }, 'Online now')
         ),
         React.createElement('div', { className: 'p-4 space-y-4 mb-20' },
-          messages.map(msg => 
-            React.createElement('div', { 
-              key: msg.id, 
-              className: \`flex \${msg.type === 'user' ? 'justify-end' : 'justify-start'}\`
+          messages.map(msg =>
+            React.createElement('div', {
+              key: msg.id,
+              className: `flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`
             },
               React.createElement('div', {
-                className: \`max-w-xs px-4 py-2 rounded-lg \${msg.type === 'user' ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-800'}\`
+                className: `max-w-xs px-4 py-2 rounded-lg ${msg.type === 'user' ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-800'}`
               }, msg.content)
             )
           )
@@ -153,7 +150,7 @@ const indexHtml = `<!DOCTYPE html>
         )
       );
     }
-    
+
     ReactDOM.render(React.createElement(ChatApp), document.getElementById('root'));
   </script>
 </body>
