@@ -1,25 +1,13 @@
 {
   "name": "preeti-chatbot",
   "version": "1.0.0",
-  "description": "Preeti Packaging WhatsApp Chatbot",
   "main": "server.js",
   "scripts": {
+    "build": "node build.js",
     "start": "node server.js"
   },
-  "engines": {
-    "node": ">=16"
-  },
   "dependencies": {
-    "express": "^4.21.2",
-    "express-session": "^1.18.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "ws": "^8.18.0"
-    // (Add only important ones if unsure. Full list can be restored after success.)
-  },
-  "devDependencies": {
-    "vite": "^5.4.14",
-    "typescript": "5.6.3",
-    "tailwindcss": "^3.4.17"
+    "express": "^4.21.2"
   }
 }
+
