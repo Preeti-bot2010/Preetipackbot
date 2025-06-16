@@ -46,7 +46,7 @@ const sheets = google.sheets({ version: "v4", auth });
 // CUSTOMER LOOKUP FUNCTION
 async function getCustomerByPhone(phone) {
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: "YOUR_SHEET_ID_HERE", // Replace with your actual ID
+    spreadsheetId: "CUSTOMERS", // Replace with your actual ID
     range: "customers!A2:D",
   });
 
